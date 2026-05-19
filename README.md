@@ -21,6 +21,44 @@ Projeyi kendi yerel ortamınızda sıfırdan ayağa kaldırmak için aşağıdak
 
 ### 1. Bağımlılıkları İndirme
 Terminal üzerinden `backend` klasörünün içine girip gerekli npm paketlerini yüklüyoruz:
+
 ```bash
 cd backend
 npm install
+```
+
+### 2. Çevre Değişkenlerinin (.env) Ayarlanması
+Backend sunucusunun port ayarını ve JWT (JSON Web Token) şifreleme anahtarını okuyabilmesi için `backend` klasörünün içerisinde **`.env`** adında bir dosya oluşturun ve içerisine aşağıdaki satırları ekleyip kaydedin:
+
+```env
+PORT=5000
+JWT_SECRET=arel_computer_engineering_secret_key_2026
+```
+
+### 3. Backend (Sunucu) ve Veritabanının Başlatılması
+Gerekli paketler yüklendikten ve `.env` dosyası hazırlandıktan sonra, veritabanı tablolarını senkronize etmek ve API sunucusunu aktif etmek için yine `backend` klasörünün içindeyken şu komutu çalıştırıyoruz:
+
+```bash
+npm start
+```
+
+*Sunucumuz başarıyla başlatıldığında konsolda `Sunucu 5000 portunda çalışıyor...` ve `SQLite Bağlantısı Başarılı.` çıktılarını göreceksiniz.*
+
+### 4. Frontend (Arayüz) Sunucusunun Başlatılması
+Arayüz bileşenlerimizi (SPA) yerel ağda canlıya almak için VS Code üzerinden yeni bir terminal sekmesi açıyoruz. Projenin ana dizinindeyken arayüzü ayağa kaldırmak için şu komutu tetikliyoruz:
+
+```bash
+npx serve frontend
+```
+
+*Bu komutun ardından terminal size yerel bir adres (örneğin `http://localhost:3000`) verecektir. Bu adresi tarayıcınızda açarak uygulamayı tam fonksiyonel şekilde kullanmaya başlayabilirsiniz.*
+
+### 🧪 API Testlerinin Koşturulması
+Backend sisteminde kurgulanan REST API endpoint'lerinin kararlılığını ve entegrasyon testlerini (Mocha/Chai) doğrulamak için `backend` klasörünün içindeyken şu komutla test senaryolarını tetikleyebilirsiniz:
+
+```bash
+npm test
+```
+```
+
+---

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seyahat ve Rota Planlayıcısı</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="userAuthBand" class="auth-band" style="display: none;">
+            <span id="welcomeMessage"><i class="bi bi-sparkles" style="color: #ffb6c1; margin-right: 5px;"></i>Hoş geldiniz</span>
+            <button onclick="handleLogout()" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Çıkış Yap</button>
+        </div>
+
+        <h1 style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <i class="bi bi-sparkles" style="color: #ffb6c1; font-size: 20px;"></i>
+            <i class="bi bi-send-fill" style="color: #db7093; font-size: 22px;"></i>
+            Seyahat Planlayıcısı
+            <i class="bi bi-sparkles" style="color: #ffb6c1; font-size: 20px;"></i>
+        </h1>
+        
+        <div id="authRequiredPanel" class="auth-required-panel">
+            <p style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                Seyahat planlarınızı yönetmek ve size özel rotaları görmek için lütfen giriş yapın. 
+                <i class="bi bi-lock-fill" style="color: #db7093; font-size: 14px;"></i>
+            </p>
+            <div class="auth-action-buttons">
+                <button onclick="openAuthModal('login')" class="main-auth-btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="bi bi-key-fill"></i>
+                    Giriş Yap
+                </button>
+                <button onclick="openAuthModal('register')" class="main-auth-btn register-secondary" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="bi bi-pencil-square"></i>
+                    Kayıt Ol
+                </button>
+            </div>
+        </div>
+
+        <div id="mainAppPanel" style="display: none;">
+            <div class="stats-panel">
+                <div class="stat-box">
+                    <span class="stat-count" id="totalRoutes">0</span>
+                    <span class="stat-label">Toplam Rota <i class="bi bi-globe-americas" style="color: #db7093;"></i></span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-count" id="pnrCount">0</span>
+                    <span class="stat-label">Kayıtlı PNR <i class="bi bi-ticket-perforated" style="color: #db7093;"></i></span>
+                </div>
+            </div>
+
+            <form id="travelForm">
+                <input type="text" id="destination" placeholder="Nereye? (Örn: Van)" required>
+                <input type="date" id="date" required>
+                <input type="text" id="pnr" placeholder="PNR Kodu">
+                <button type="submit"><i class="bi bi-plus-lg"></i> Listeye Ekle</button>
+            </form>
+
+            <div id="travelList">
+                <h2>Rotalarım</h2>
+                <button id="exportBtn" class="export-btn"><i class="bi bi-journal-bookmark"></i> Yolculuk Günlüğünü Aç</button>
+                <div id="listContainer"></div>
+            </div>
+
+            <div id="rawViewer" class="raw-viewer" style="display: none;">
+                <h3><i class="bi bi-heart-fill" style="color: #db7093; margin-right: 5px;"></i> Rota Arşivi & Zaman Tüneli</h3>
+                <div id="archiveTimeline" class="archive-timeline"></div>
+                <button onclick="document.getElementById('rawViewer').style.display='none'" class="close-btn"><i class="bi bi-x-lg"></i> Paneli Kapat</button>
+            </div>
+
+           <div class="sidebar-tips-card">
+    <h3><i class="bi bi-lightbulb-fill" style="color: #db7093;"></i> Seyahat İpuçları</h3>
+    <div class="tip-content">
+        <p id="dynamicTip" style="transition: opacity 0.2s ease;">Valizini hazırlarken en ağır eşyaları tekerleklere yakın, yani en alta koyarak taşımayı kolaylaştırabilirsin!</p>
+    </div>
+    <button type="button" onclick="changeTip()" class="next-tip-btn"><i class="bi bi-arrow-clockwise"></i> Başka İpucu Gör</button>
+</div>
+        </div> </div> <div id="authModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content auth-modal-content">
+            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+            <h2 id="authModalTitle" class="auth-title">Giriş Yap</h2>
+            
+            <div class="input-group-icon">
+                <label for="authEmail">E-posta Adresi</label>
+                <div class="input-wrapper">
+                    <i class="bi bi-envelope input-icon"></i>
+                    <input type="email" id="authEmail" placeholder="ornek@arel.edu.tr">
+                </div>
+            </div>
+            
+            <div class="input-group-icon">
+                <label for="authPassword">Şifre</label>
+                <div class="input-wrapper">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input type="password" id="authPassword" placeholder="••••••••">
+                </div>
+            </div>
+            
+            <button id="authSubmitBtn" class="save-modal-btn" onclick="handleAuthSubmit()"><i class="bi bi-rocket-takeoff"></i> Devam Et</button>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            <h2>Seyahati Düzenle <i class="bi bi-pencil" style="color: #db7093; font-size: 18px; margin-left: 5px;"></i></h2>
+            <input type="hidden" id="editId">
+            <div class="input-group">
+                <label for="editDestination">Nereye?</label>
+                <input type="text" id="editDestination">
+            </div>
+            <div class="input-group">
+                <label for="editDate">Seyahat Tarihi</label>
+                <input type="date" id="editDate">
+            </div>
+            <div class="input-group">
+                <label for="editPnr">PNR Kodu</label>
+                <input type="text" id="editPnr">
+            </div>
+            <button class="save-modal-btn" onclick="saveEdit()"><i class="bi bi-floppy"></i> Değişiklikleri Kaydet</button>
+        </div>
+    </div>
+
+    <div id="diaryModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content diary-modal-content" style="position: relative;">
+            <span class="close-modal" onclick="closeDiaryModal()">&times;</span>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 5px;">
+                <i class="bi bi-sparkles" style="color: #ffb6c1; font-size: 16px;"></i>
+                <i class="bi bi-send-fill" style="color: #db7093; font-size: 18px;"></i>
+                <i class="bi bi-sparkles" style="color: #ffb6c1; font-size: 16px;"></i>
+            </div>
+
+            <h2 id="diaryModalTitle" style="margin-top: 0; color: #db7093; font-weight: 800; text-align: center;">
+                <i class="bi bi-book-half" style="margin-right: 5px;"></i> Seyahat Günlüğü & Anılar
+            </h2>
+            <input type="hidden" id="diaryTravelId">
+            
+            <div class="diary-body">
+                <div class="diary-notes-area">
+                    <label><i class="bi bi-magic" style="color: #db7093;"></i> Yolculuk Notları ve Gezi Rehberim</label>
+                    <textarea id="diaryNotes" placeholder="Anılarını buraya not edebilirsin..."></textarea>
+                    
+                    <label style="margin-top: 15px;"><i class="bi bi-camera-fill" style="color: #db7093;"></i> Anı Fotoğraflarım (Maks: 3 Adet)</label>
+                    <div class="gallery-grid" id="galleryGrid"></div>
+                    <input type="file" id="diaryFileInput" accept="image/*" style="display: none;" onchange="uploadDiaryPhoto(event)">
+                    <button type="button" class="photo-upload-trigger-btn" onclick="handlePhotoUploadClick()"><i class="bi bi-images"></i> Yeni Fotoğraf Ekle</button>
+                </div>
+                
+                <div class="diary-budget-area">
+                    <label><i class="bi bi-cash-coin" style="color: #db7093;"></i> Seyahat Bütçesi ve Harcamalar</label>
+                    <div class="budget-total-banner">
+                        <span>Toplam Harcama:</span>
+                        <span id="modalTotalExpense">0.00 TL</span>
+                    </div>
+                    
+                    <div class="expense-inline-form">
+                        <input type="text" id="expenseTitle" placeholder="Örn: Uçak Bileti">
+                        <input type="number" id="expenseAmount" placeholder="Tutar (TL)" min="0">
+                        <button type="button" onclick="addExpenseItem()"><i class="bi bi-plus-lg"></i></button>
+                    </div>
+                    
+                    <div class="expense-list" id="expenseListContainer"></div>
+                </div>
+            </div>
+            
+            <button class="save-modal-btn" style="margin-top:20px;" onclick="saveDiaryData()"><i class="bi bi-floppy"></i> Tüm Değişiklikleri Kaydet</button>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
